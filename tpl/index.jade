@@ -1,0 +1,16 @@
+extends layout
+
+block content
+    .container-fluid(class='fill')
+        div#home(class='chat-content')
+            .col-xs-10(class='main')
+                h1.title Express Chat Room
+                .content(class='fheight')
+                .controls(class='form-inline')
+                    .col-xs-10
+                        input#message(class='form-control full')
+                    .col-xs-2
+                        button#send(type='button', class='btn btn-success full') Send
+            .col-xs-2(id='user')
+                .heading Members in Chat
+                #user-list
