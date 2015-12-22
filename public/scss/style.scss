@@ -1,8 +1,7 @@
-/* line 1, ../scss/style.scss */
 html, body {
-  height: 100%; }
+  height: 100%;
+}
 
-/* line 5, ../scss/style.scss */
 .content {
   margin: 0 0 20px 0;
   border: solid 1px #999;
@@ -13,28 +12,28 @@ html, body {
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
-  -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s; }
+  -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+}
 
-/* line 18, ../scss/style.scss */
 .fill {
   min-height: 100%;
   height: 100%;
   padding: 0;
-  margin: 0 5px 0 0; }
+  margin: 0 5px 0 0;
+}
 
-/* line 25, ../scss/style.scss */
 .main {
   min-height: 100%;
-  height: 100%; }
+  height: 100%;
+}
 
-/* line 30, ../scss/style.scss */
 h1.title {
   background: #E0E0E0;
   font-size: 18px;
   padding: 10px;
-  margin: 0; }
+  margin: 0;
+}
 
-/* line 37, ../scss/style.scss */
 .info {
   width: 100%;
   min-width: 650px;
@@ -42,33 +41,32 @@ h1.title {
   background-color: rgba(66, 66, 66, 0.3);
   position: absolute;
   color: #fff;
-  padding-top: 300px; }
-  /* line 45, ../scss/style.scss */
-  .info input {
-    margin: 10px 0; }
+  padding-top: 300px;
+  input {
+    margin: 10px 0;
+  }
+}
 
-/* line 50, ../scss/style.scss */
 .fheight {
-  height: 84%; }
+  height: 84%;
+}
 
-/* line 54, ../scss/style.scss */
 .center {
   text-align: center;
   vertical-align: middle;
-  opacity: 1; }
+  opacity: 1;
+}
 
-/* line 60, ../scss/style.scss */
 .error {
   padding: 10px 0;
-  color: red; }
+  color: red;
+}
 
-/* line 65, ../scss/style.scss */
 .row {
   width: 100%;
   margin: 3px 3px 10px 3px;
-  position: relative; }
-  /* line 69, ../scss/style.scss */
-  .row .message {
+  position: relative;
+  .message {
     padding: 6px;
     background: #A2E0F5;
     color: #1F1F1F;
@@ -79,9 +77,8 @@ h1.title {
     max-width: 50%;
     word-wrap: break-word;
     position: relative;
-    font-size: 90%; }
-    /* line 81, ../scss/style.scss */
-    .row .message:before {
+    font-size: 90%;
+    &:before {
       position: absolute;
       display: inline-block;
       border-top: 7px solid transparent;
@@ -89,18 +86,19 @@ h1.title {
       border-bottom: 7px solid transparent;
       right: -5px;
       top: 10px;
-      content: ''; }
-  /* line 92, ../scss/style.scss */
-  .row .date {
+      content: '';
+    }
+  }
+  .date {
+    &:before {
+      clear: both;
+    }
     margin: 5px 55px 5px 5px;
     color: #B3B3B3;
     font-size: 12px;
-    text-align: right; }
-    /* line 93, ../scss/style.scss */
-    .row .date:before {
-      clear: both; }
-  /* line 101, ../scss/style.scss */
-  .row .profile {
+    text-align: right;
+  }
+  .profile {
     border-radius: 3px;
     width: 52px;
     height: 52px;
@@ -108,28 +106,28 @@ h1.title {
     top: 2px;
     right: -4px;
     background: url(../images/profile.jpg) no-repeat;
-    background-size: 50px; }
-    /* line 110, ../scss/style.scss */
-    .row .profile .img-rounded {
-      width: 50px; }
+    background-size: 50px;
+    .img-rounded {
+      width: 50px;
+    }
+  }
+}
 
-/* line 116, ../scss/style.scss */
 .r-message {
-  overflow: hidden; }
+  overflow: hidden;
+}
 
-/* line 120, ../scss/style.scss */
 .row_other {
   width: 100%;
   margin: 3px 3px 10px 0px;
-  position: relative; }
-  /* line 124, ../scss/style.scss */
-  .row_other .date {
+  position: relative;
+  .date {
     margin: 5px 5px 5px 60px;
     color: #B3B3B3;
     font-size: 12px;
-    text-align: left; }
-  /* line 130, ../scss/style.scss */
-  .row_other .message {
+    text-align: left;
+  }
+  .message {
     padding: 6px;
     border-radius: 3px;
     background: #EBEBEB;
@@ -142,9 +140,8 @@ h1.title {
     max-width: 50%;
     word-wrap: break-word;
     position: relative;
-    font-size: 90%; }
-    /* line 144, ../scss/style.scss */
-    .row_other .message:before {
+    font-size: 90%;
+    &:before {
       position: absolute;
       display: inline-block;
       border-top: 7px solid transparent;
@@ -152,9 +149,10 @@ h1.title {
       border-right: 6px solid #EBEBEB;
       left: -5px;
       top: 10px;
-      content: ''; }
-  /* line 155, ../scss/style.scss */
-  .row_other .profile {
+      content: '';
+    }
+  }
+  .profile {
     left: 0;
     border-radius: 3px;
     width: 52px;
@@ -162,16 +160,17 @@ h1.title {
     position: absolute;
     top: 2px;
     background: url(../images/profile.jpg) no-repeat;
-    background-size: 50px; }
-  /* line 165, ../scss/style.scss */
-  .row_other .username {
+    background-size: 50px;
+  }
+  .username {
     text-align: left;
-    padding-left: 60px; }
-  /* line 169, ../scss/style.scss */
-  .row_other .profile .img-rounded {
-    width: 50px; }
+    padding-left: 60px;
+  }
+  .profile .img-rounded {
+    width: 50px;
+  }
+}
 
-/* line 174, ../scss/style.scss */
 .username {
   text-align: right;
   color: #009C12;
@@ -179,65 +178,66 @@ h1.title {
   padding-right: 55px;
   display: block;
   margin-bottom: 2px;
-  font-size: 95%; }
+  font-size: 95%;
+}
 
-/* line 184, ../scss/style.scss */
 #message, .full {
-  width: 100%; }
+  width: 100%;
+}
 
-/* line 188, ../scss/style.scss */
 #user {
   border: 1px solid #BDBDBD;
   border-radius: 5px;
   height: 95%;
   margin: 5px 0;
   padding: 0;
-  overflow: hidden; }
+  overflow: hidden;
+}
 
-/* line 197, ../scss/style.scss */
 #user-list {
   overflow: auto;
   height: 92%;
   padding: 0;
-  margin: 0; }
+  margin: 0;
+}
 
-/* line 204, ../scss/style.scss */
 .row-user {
   padding: 5px;
   color: #000;
   background: #AED4E8;
   max-height: 45px;
   cursor: pointer;
-  border-bottom: 1px solid #fff; }
-  /* line 211, ../scss/style.scss */
-  .row-user:hover, .row-user.active {
+  border-bottom: 1px solid #fff;
+  &:hover, &.active {
     background: #0E7BB5;
-    color: #fff; }
-  /* line 215, ../scss/style.scss */
-  .row-user .img-circle {
+    color: #fff;
+  }
+  .img-circle {
     max-height: 36px;
-    margin-right: 10px; }
+    margin-right: 10px;
+  }
+}
 
-/* line 221, ../scss/style.scss */
 .heading {
   padding: 10px;
   background: #5E5E5E;
-  color: #fff; }
+  color: #fff;
+}
 
-/* line 227, ../scss/style.scss */
 .tab-content {
   height: 90%;
-  margin: 5px 0; }
+  margin: 5px 0;
+}
 
-/* line 232, ../scss/style.scss */
 .chat-content {
-  height: 100%; }
+  height: 100%;
+}
 
-/* line 236, ../scss/style.scss */
 #main_room {
   height: 45px;
-  padding: 12px; }
-  /* line 239, ../scss/style.scss */
-  #main_room:hover, #main_room.active {
+  padding: 12px;
+  &:hover, &.active {
     background: #0EB52D;
-    color: #fff; }
+    color: #fff;
+  }
+}

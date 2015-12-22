@@ -14,6 +14,7 @@ $(window).load(function() {
     var content = $(".content");
     var clientId = null;
     var users = [];
+    var currRoomId = null;
 
     // First register user
     var loginDialog = new BootstrapDialog.show({
@@ -91,6 +92,8 @@ $(window).load(function() {
             clientId = _clientId;
         }
         if(data.message) {
+            alert(data.room_id);
+            
             var cls = 'row';
             if (_clientId != clientId) {
                 cls = 'row_other';
@@ -120,7 +123,7 @@ $(window).load(function() {
 
         // Main chat room
         if (!$('#main_room').is(':visible')) {
-            var html = '<div class="row-user active" id="main_room">Express Chat Room</div>';
+            var html = '<li class="row-user active" id="main_room" data-rid="express_chat">Express Chat Room</li>';
             $('#user-list').append(html);
         }
 
@@ -128,10 +131,12 @@ $(window).load(function() {
 
         for (key in users) {
             var user = users[key];
+
             var clientId = user.client_id;
+            var userId = user.user_id;
 
             if (!$('#' + clientId).is(':visible')) {
-                var html = '<div class="row-user" id="'+ clientId +'"><img src="/images/profile.jpg" class="img-circle">' + user.user_name + '</div>';
+                var html = '<li class="row-user" data-rid="_room_' + userId + '"><img src="/images/profile.jpg" class="img-circle">' + user.user_name + '</li>';
 
                 $('#user-list').append(html);
             }
@@ -146,10 +151,28 @@ $(window).load(function() {
         $('#' + _clientId).remove();
     });
     
+    /**
+    * User interaction
+    */
+    $('#user').on('click', '.row-user', function () {
+        var roomId = $(this).attr('data-rid');
+        var roomTitle = $(this).text();
+        $('.title').text(roomTitle);
+
+        $('#user-list li').removeClass('active');
+
+        $('#user-list li[data-rid=' + roomId + ']').addClass('active');
+
+        // Change room
+        socket.emit('subscribe', roomId);
+
+        currRoomId = roomId;
+    });
+
     // User click Send button
     $('#send').click(function() {
         var text = field.val();
-        socket.emit('send', { message: text, username: _username });
+        socket.emit('send', { message: text, username: _username, room_id: currRoomId });
 
         field.val('').focus();
     });
@@ -178,7 +201,7 @@ $(function() {
 
 function notifyMe(message) {
   if (!Notification) {
-    alert('Desktop notifications not available in your browser. Try Chromium.'); 
+    alert('Desktop notifications not available in your browser. Try Chromium.');
     return;
   }
 
