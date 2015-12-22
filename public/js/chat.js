@@ -92,8 +92,6 @@ $(window).load(function() {
             clientId = _clientId;
         }
         if(data.message) {
-            alert(data.room_id);
-            
             var cls = 'row';
             if (_clientId != clientId) {
                 cls = 'row_other';
@@ -113,7 +111,7 @@ $(window).load(function() {
         }
     });
 
-    socket.on('show_user', function (_clientId, _users, dialog) {
+    socket.on('show_user', function (_clientId, _users) {
         if (!clientId) {
             clientId = _clientId;
         }
@@ -126,7 +124,6 @@ $(window).load(function() {
             var html = '<li class="row-user active" id="main_room" data-rid="express_chat">Express Chat Room</li>';
             $('#user-list').append(html);
         }
-
         users = _users;
 
         for (key in users) {
@@ -136,7 +133,7 @@ $(window).load(function() {
             var userId = user.user_id;
 
             if (!$('#' + clientId).is(':visible')) {
-                var html = '<li class="row-user" data-rid="_room_' + userId + '"><img src="/images/profile.jpg" class="img-circle">' + user.user_name + '</li>';
+                var html = '<li class="row-user" id="' + clientId + '" data-rid="_room_' + userId + '"><img src="/images/profile.jpg" class="img-circle">' + user.user_name + '</li>';
 
                 $('#user-list').append(html);
             }
@@ -156,6 +153,7 @@ $(window).load(function() {
     */
     $('#user').on('click', '.row-user', function () {
         var roomId = $(this).attr('data-rid');
+        var _clientId = $(this).attr('id');
         var roomTitle = $(this).text();
         $('.title').text(roomTitle);
 
@@ -163,8 +161,8 @@ $(window).load(function() {
 
         $('#user-list li[data-rid=' + roomId + ']').addClass('active');
 
-        // Change room
-        socket.emit('subscribe', roomId);
+        // Change room for private chat
+        socket.emit('subscribe', _clientId, roomId);
 
         currRoomId = roomId;
     });
@@ -172,6 +170,7 @@ $(window).load(function() {
     // User click Send button
     $('#send').click(function() {
         var text = field.val();
+
         socket.emit('send', { message: text, username: _username, room_id: currRoomId });
 
         field.val('').focus();
@@ -181,14 +180,12 @@ $(window).load(function() {
     $('#message').keypress(function(e) {
         if (e.which == 13) {
             var text = field.val();
-            socket.emit('send', { message: text, username: _username });
+            socket.emit('send', { message: text, username: _username, room_id: currRoomId });
+
+            console.log('Current room ' + currRoomId);
 
             $(this).val('').focus();
         }
-    });
-
-    $('#sign_in').click(function() {
-        signIn();
     });
 });
 

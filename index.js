@@ -81,6 +81,7 @@ var Message = connection.model('Message', messageSchema);
 var app = express();
 var port = 3700;
 var users = [];
+var userSockets = [];
 var rooms = [];
 
 // Setting template engine Jade
@@ -103,7 +104,10 @@ io.sockets.on('connection', function (socket) {
 	var _clientId = socket.id;
 
   socket.join(mainRoom);
-  rooms.push(mainRoom);
+
+  if (rooms.indexOf(mainRoom) == -1) {
+    rooms.push(mainRoom);
+  }
 
   // Trigger on send event
   socket.on('send', function (data) {
@@ -122,9 +126,14 @@ io.sockets.on('connection', function (socket) {
     io.sockets.in(data.room_id).emit('message', _clientId, data);
   });
 
-  socket.on('subscribe', function (room_id) {
-    if (rooms.indexOf(room_id) == 0) {
+  socket.on('subscribe', function (clientId, room_id) {
+    console.log('Subscribing ' + clientId + ' - ' + room_id + ' - ' + rooms.indexOf(room_id) + ' - Room total ' + rooms.length);
+    if (rooms.indexOf(room_id) == -1) {
+      console.log('Inserting new room ' + room_id);
+      console.log('User socket ' + userSockets[clientId]);
+
       socket.join(room_id);
+      userSockets[clientId].join(room_id);
 
       rooms.push(room_id);
     }
@@ -166,8 +175,6 @@ io.sockets.on('connection', function (socket) {
   
   // Login event
   socket.on('login', function (data) {
-    console.log('User ' + _clientId + ' is logging in');
-
     User.findOne({ username: data.username }, function (err, user) {
       if (user == null) {
         socket.emit('exception', {message: 'This user is not exist. Please create your account !'});
@@ -178,7 +185,12 @@ io.sockets.on('connection', function (socket) {
           } else {
             // Add new user to store
             users.push({"client_id" : _clientId, "user_name" : data.username, "user_id": user.user_id});
-            socket.emit('show_user', _clientId, users);
+
+            userSockets[_clientId] = socket;
+            console.log('User socket ' + userSockets.length);
+
+            // Add new user to channel
+            io.sockets.emit('show_user', _clientId, users);
           }
         });
       }
