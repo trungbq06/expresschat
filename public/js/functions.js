@@ -9,3 +9,15 @@ exports.removeObject = function (object, removeKey) {
         }
     }
 }
+
+exports.findByKey = function (object, key, value) {
+	for (_key in object) {
+		var _object = object[_key];
+
+		if (_object[key] == value) {
+			return _object;
+		}
+	}
+
+	return null;
+}

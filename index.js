@@ -126,6 +126,10 @@ io.sockets.on('connection', function (socket) {
   });
 
   socket.on('subscribe', function (clientId, room_id) {
+    var _clientUser = functions.findByKey(users, 'client_id', _clientId);
+    var _clientUserId = _clientUser.user_id;
+    room_id = room_id + '_' + _clientUserId;
+
     console.log('Change room ' + room_id);
     
     if (rooms.indexOf(room_id) == -1) {

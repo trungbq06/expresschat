@@ -90,9 +90,6 @@ $(window).load(function() {
 
     // Trigger message event
     socket.on('message', function (_clientId, data) {
-        if (!clientId) {
-            clientId = _clientId;
-        }
         var room_id = data.room_id;
         if(data.message) {
             var cls = 'row';
@@ -156,6 +153,10 @@ $(window).load(function() {
 
             if (_clientId != clientId) {
                 $('#' + room_id).hide();
+            } else {
+                currRoomId = room_id;
+                $('.content').hide();
+                $('#' + currRoomId).show();
             }
         }
     });
@@ -183,10 +184,6 @@ $(window).load(function() {
 
         // Change room for private chat
         socket.emit('subscribe', _clientId, roomId);
-
-        currRoomId = roomId;
-        $('.content').hide();
-        $('#' + currRoomId).show();
     });
 
     // User click Send button
