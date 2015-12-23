@@ -4,8 +4,10 @@ block content
     .container-fluid(class='fill')
         div#home(class='chat-content')
             .col-xs-10(class='main')
-                h1.title Express Chat Room
-                .content(class='fheight')
+                h1.title
+                    .room-title Express Chat Room
+                    #profile
+                .content(id="express_chat", class='fheight')
                 .controls(class='form-inline')
                     .col-xs-10
                         input#message(class='form-control full')

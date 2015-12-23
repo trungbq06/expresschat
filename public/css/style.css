@@ -241,3 +241,11 @@ h1.title {
   #main_room:hover, #main_room.active {
     background: #0EB52D;
     color: #fff; }
+
+/* line 245, ../scss/style.scss */
+#profile {
+  float: right; }
+
+/* line 248, ../scss/style.scss */
+.room-title {
+  display: inline; }

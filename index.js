@@ -5,8 +5,6 @@ var favicon = require('serve-favicon');
 var autoIncrement = require('mongoose-auto-increment');
 var functions = require("./public/js/functions.js");
 
-var mainRoom = 'express_chat';
-
 var url = 'mongodb://10.9.16.22:27017/chat';
 var Schema = mongoose.Schema;
 var connection = mongoose.createConnection(url);
@@ -83,6 +81,7 @@ var port = 3700;
 var users = [];
 var userSockets = [];
 var rooms = [];
+var mainRoom = 'express_chat';
 
 // Setting template engine Jade
 app.set('views', __dirname + '/tpl');
@@ -127,29 +126,31 @@ io.sockets.on('connection', function (socket) {
   });
 
   socket.on('subscribe', function (clientId, room_id) {
-    console.log('Subscribing ' + clientId + ' - ' + room_id + ' - ' + rooms.indexOf(room_id) + ' - Room total ' + rooms.length);
+    console.log('Change room ' + room_id);
+    
     if (rooms.indexOf(room_id) == -1) {
-      console.log('Inserting new room ' + room_id);
-      console.log('User socket ' + userSockets[clientId]);
+      console.log('Subscribe new room ' + room_id);
 
+      // Create private chat between this socket and client
       socket.join(room_id);
       userSockets[clientId].join(room_id);
 
       rooms.push(room_id);
+
+      // Create message content to hold between these two users
+      io.sockets.in(room_id).emit('subscribe', _clientId, room_id);
     }
+    console.log('Rooms ' + rooms.toString());
   });
 
   // Listen for regist action
   socket.on('regist', function (data) {
-    console.log('User ' + _clientId + ' is registering');
-
     User.findOne({ username: data.username }, function (err, user) {
       if (user == null) {
         var newUser = new User({
           username: data.username,
           password: data.password
         });
-        console.log('Inserting ' + data.username);
 
         // Save user to database
         newUser.save(function (err) {
@@ -158,10 +159,12 @@ io.sockets.on('connection', function (socket) {
           if (err == null) {
             // Make this user online
             User.findOne({ username: data.username }, function (err, user) {
-              console.log('User ' + user.user_id + ' - ' + _clientId + ' is online');
+              console.log('User ' + user.username + ' is online');
 
               users.push({"client_id" : _clientId, "user_name" : data.username, "user_id": user.user_id});
 
+              userSockets[_clientId] = socket;
+              
               // Add new user to channel
               io.sockets.emit('show_user', _clientId, users);
             });
@@ -183,11 +186,11 @@ io.sockets.on('connection', function (socket) {
           if (user == null) {
             socket.emit('exception', {message: 'Wrong password !'});
           } else {
+            console.log('User ' + user.username + ' is online');
             // Add new user to store
             users.push({"client_id" : _clientId, "user_name" : data.username, "user_id": user.user_id});
 
             userSockets[_clientId] = socket;
-            console.log('User socket ' + userSockets.length);
 
             // Add new user to channel
             io.sockets.emit('show_user', _clientId, users);

@@ -8,13 +8,13 @@ $(window).load(function() {
     }, "Please enter a valid username.");
 
     var _username = null;
+    var _userId = null;
     var messages = [];
     var socket = io.connect(SERVER);
     var field = $("#message");
-    var content = $(".content");
     var clientId = null;
     var users = [];
-    var currRoomId = null;
+    var currRoomId = 'express_chat';
 
     // First register user
     var loginDialog = new BootstrapDialog.show({
@@ -50,6 +50,7 @@ $(window).load(function() {
                         _username = username;
                         // Login user
                         socket.emit('login', { username: username, password: password });
+                        $('#profile').text(username);
                     }
                 }
             },
@@ -74,6 +75,7 @@ $(window).load(function() {
                         _username = username;
                         // Register user
                         socket.emit('regist', { username: username, password: password });
+                        $('#profile').text(username);
                     }
                 }
             }
@@ -91,6 +93,7 @@ $(window).load(function() {
         if (!clientId) {
             clientId = _clientId;
         }
+        var room_id = data.room_id;
         if(data.message) {
             var cls = 'row';
             if (_clientId != clientId) {
@@ -105,7 +108,7 @@ $(window).load(function() {
                 '<div class="profile"><img src="/images/profile.jpg" class="img-rounded"></div></div>' +
                 '<div class="date">' + date.getHours() + ':' + ('0' + date.getMinutes()).slice(-2) + '</div>' +
             '</div>';
-            content.append(html).scrollTop(content[0].scrollHeight);
+            $('#' + room_id).append(html).scrollTop($('#' + room_id)[0].scrollHeight);
         } else {
             console.log("There is a problem:", data);
         }
@@ -129,13 +132,30 @@ $(window).load(function() {
         for (key in users) {
             var user = users[key];
 
-            var clientId = user.client_id;
+            var cId = user.client_id;
             var userId = user.user_id;
+            var username = user.user_name;
 
-            if (!$('#' + clientId).is(':visible')) {
-                var html = '<li class="row-user" id="' + clientId + '" data-rid="_room_' + userId + '"><img src="/images/profile.jpg" class="img-circle">' + user.user_name + '</li>';
+            if (_username == username) {
+                continue;
+            }
+
+            if (!$('#' + cId).is(':visible')) {
+                var html = '<li class="row-user" id="' + cId + '" data-rid="' + userId + '"><img src="/images/profile.jpg" class="img-circle">' + username + '</li>';
 
                 $('#user-list').append(html);
+            }
+        }
+    });
+
+    socket.on('subscribe', function (_clientId, room_id) {
+        if ($('#' + room_id).length == 0) {
+            var newRoomContent = '<div id="' + room_id + '" class="content fheight"></div>';
+
+            $('.title').after(newRoomContent);
+
+            if (_clientId != clientId) {
+                $('#' + room_id).hide();
             }
         }
     });
@@ -153,9 +173,9 @@ $(window).load(function() {
     */
     $('#user').on('click', '.row-user', function () {
         var roomId = $(this).attr('data-rid');
-        var _clientId = $(this).attr('id');
+        var _clientId = $(this).attr('id'); // Client ID of the socket connected
         var roomTitle = $(this).text();
-        $('.title').text(roomTitle);
+        $('.room-title').text(roomTitle);
 
         $('#user-list li').removeClass('active');
 
@@ -165,6 +185,8 @@ $(window).load(function() {
         socket.emit('subscribe', _clientId, roomId);
 
         currRoomId = roomId;
+        $('.content').hide();
+        $('#' + currRoomId).show();
     });
 
     // User click Send button
