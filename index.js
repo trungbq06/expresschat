@@ -110,10 +110,13 @@ io.sockets.on('connection', function (socket) {
 
   // Trigger on send event
   socket.on('send', function (data) {
+    var _clientUser = functions.findByKey(users, 'client_id', _clientId);
+    var _clientUserId = _clientUser.user_id;
+    
     var message = new Message({
-      user_id: data.username,
-      room_id: null,
-      to_user_id: null,
+      user_id: _clientUserId,
+      user_name: data.username,
+      room_id: data.room_id,
       message: data.message
     });
     message.save(function (err) {
@@ -122,29 +125,29 @@ io.sockets.on('connection', function (socket) {
       }
     });
 
-    io.sockets.in(data.room_id).emit('message', _clientId, data);
+    io.sockets.in(data.room_id).emit('message', _clientUserId, _clientId, data);
   });
 
-  socket.on('subscribe', function (clientId, room_id) {
-    var _clientUser = functions.findByKey(users, 'client_id', _clientId);
-    var _clientUserId = _clientUser.user_id;
-    room_id = room_id + '_' + _clientUserId;
+  socket.on('subscribe', function (_clientUserId, clientId, room_id) {
+    if (room_id != mainRoom) {
+      room_id = room_id + '_' + _clientUserId;
 
-    console.log('Change room ' + room_id);
-    
-    if (rooms.indexOf(room_id) == -1) {
-      console.log('Subscribe new room ' + room_id);
+      console.log('Change room: ' + room_id + ' - Has room: ' + rooms.indexOf(room_id));
+      
+      if (rooms.indexOf(room_id) == -1) {
+        console.log('Subscribe new room ' + room_id);
 
-      // Create private chat between this socket and client
-      socket.join(room_id);
-      userSockets[clientId].join(room_id);
+        // Create private chat between this socket and client
+        socket.join(room_id);
+        userSockets[clientId].join(room_id);
 
-      rooms.push(room_id);
-
-      // Create message content to hold between these two users
-      io.sockets.in(room_id).emit('subscribe', _clientId, room_id);
+        rooms.push(room_id);
+      }
+      console.log('Rooms ' + rooms.toString());
     }
-    console.log('Rooms ' + rooms.toString());
+
+    // Create message content to hold between these two users
+    io.sockets.in(room_id).emit('subscribe', _clientId, room_id);
   });
 
   // Listen for regist action
@@ -170,7 +173,7 @@ io.sockets.on('connection', function (socket) {
               userSockets[_clientId] = socket;
               
               // Add new user to channel
-              io.sockets.emit('show_user', _clientId, users);
+              io.sockets.emit('show_user', user.user_id, _clientId, users);
             });
           }
         })
@@ -197,7 +200,7 @@ io.sockets.on('connection', function (socket) {
             userSockets[_clientId] = socket;
 
             // Add new user to channel
-            io.sockets.emit('show_user', _clientId, users);
+            io.sockets.emit('show_user', user.user_id, _clientId, users);
           }
         });
       }

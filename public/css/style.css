@@ -203,49 +203,64 @@ h1.title {
 
 /* line 204, ../scss/style.scss */
 .row-user {
+  position: relative;
   padding: 5px;
   color: #000;
   background: #AED4E8;
   max-height: 45px;
   cursor: pointer;
   border-bottom: 1px solid #fff; }
-  /* line 211, ../scss/style.scss */
+  /* line 212, ../scss/style.scss */
   .row-user:hover, .row-user.active {
     background: #0E7BB5;
     color: #fff; }
-  /* line 215, ../scss/style.scss */
+  /* line 216, ../scss/style.scss */
   .row-user .img-circle {
     max-height: 36px;
     margin-right: 10px; }
 
-/* line 221, ../scss/style.scss */
+/* line 222, ../scss/style.scss */
 .heading {
   padding: 10px;
   background: #5E5E5E;
   color: #fff; }
 
-/* line 227, ../scss/style.scss */
+/* line 228, ../scss/style.scss */
 .tab-content {
   height: 90%;
   margin: 5px 0; }
 
-/* line 232, ../scss/style.scss */
+/* line 233, ../scss/style.scss */
 .chat-content {
   height: 100%; }
 
-/* line 236, ../scss/style.scss */
+/* line 237, ../scss/style.scss */
 #main_room {
   height: 45px;
   padding: 12px; }
-  /* line 239, ../scss/style.scss */
+  /* line 240, ../scss/style.scss */
   #main_room:hover, #main_room.active {
     background: #0EB52D;
     color: #fff; }
 
-/* line 245, ../scss/style.scss */
+/* line 246, ../scss/style.scss */
 #profile {
   float: right; }
 
-/* line 248, ../scss/style.scss */
+/* line 249, ../scss/style.scss */
 .room-title {
   display: inline; }
+
+/* line 253, ../scss/style.scss */
+.unread {
+  display: none;
+  position: absolute;
+  font-size: 12px;
+  top: 14px;
+  right: 10px;
+  width: 16px;
+  height: 16px;
+  background: red;
+  color: #fff;
+  border-radius: 8px;
+  text-align: center; }

@@ -1,4 +1,5 @@
 var SERVER = 'http://10.9.16.22:3700';
+var MAIN_ROOM = 'express_chat';
 
 $(window).load(function() {
 
@@ -14,7 +15,7 @@ $(window).load(function() {
     var field = $("#message");
     var clientId = null;
     var users = [];
-    var currRoomId = 'express_chat';
+    var currRoomId = MAIN_ROOM;
 
     // First register user
     var loginDialog = new BootstrapDialog.show({
@@ -89,13 +90,27 @@ $(window).load(function() {
     });
 
     // Trigger message event
-    socket.on('message', function (_clientId, data) {
+    socket.on('message', function (_clientUserId, _clientId, data) {
         var room_id = data.room_id;
         if(data.message) {
+            console.log('Client User ID ' + _clientUserId);
             var cls = 'row';
+            // Handle on destination client
             if (_clientId != clientId) {
                 cls = 'row_other';
                 notifyMe(data.message);
+
+                if (room_id == MAIN_ROOM) {
+                    if (currRoomId != MAIN_ROOM) {
+                        var currUnread = $('#user-list li#main_room .unread').text();
+                        currUnread++;
+                        $('#user-list li#main_room .unread').text(currUnread).show();
+                    }
+                } else if (currRoomId != room_id) {
+                    var currUnread = $('#user-list li[data-rid=' + _clientUserId + '] .unread').text();
+                    currUnread++;
+                    $('#user-list li[data-rid=' + _clientUserId + '] .unread').text(currUnread).show();
+                }
             }
             messages.push(data.message);
 
@@ -111,9 +126,11 @@ $(window).load(function() {
         }
     });
 
-    socket.on('show_user', function (_clientId, _users) {
+    socket.on('show_user', function (_clientUserId, _clientId, _users) {
         if (!clientId) {
             clientId = _clientId;
+            _userId = _clientUserId;
+            console.log('User ID ' + _userId);
         }
 
         // Close login dialog
@@ -121,7 +138,7 @@ $(window).load(function() {
 
         // Main chat room
         if (!$('#main_room').is(':visible')) {
-            var html = '<li class="row-user active" id="main_room" data-rid="express_chat">Express Chat Room</li>';
+            var html = '<li class="row-user active" id="main_room" data-rid="express_chat"><span class="user_name">Express Chat Room</span><span class="unread">0</span></li>';
             $('#user-list').append(html);
         }
         users = _users;
@@ -138,7 +155,7 @@ $(window).load(function() {
             }
 
             if (!$('#' + cId).is(':visible')) {
-                var html = '<li class="row-user" id="' + cId + '" data-rid="' + userId + '"><img src="/images/profile.jpg" class="img-circle">' + username + '</li>';
+                var html = '<li class="row-user" id="' + cId + '" data-rid="' + userId + '"><img src="/images/profile.jpg" class="img-circle"><span class="user_name">' + username + '</span><span class="unread">0</span></li>';
 
                 $('#user-list').append(html);
             }
@@ -153,11 +170,13 @@ $(window).load(function() {
 
             if (_clientId != clientId) {
                 $('#' + room_id).hide();
-            } else {
-                currRoomId = room_id;
-                $('.content').hide();
-                $('#' + currRoomId).show();
             }
+        }
+
+        if (_clientId == clientId) {
+            currRoomId = room_id;
+            $('.content').hide();
+            $('#' + currRoomId).show();
         }
     });
 
@@ -173,17 +192,28 @@ $(window).load(function() {
     * User interaction
     */
     $('#user').on('click', '.row-user', function () {
+        $(this).find('.unread').text('').hide();
+
         var roomId = $(this).attr('data-rid');
         var _clientId = $(this).attr('id'); // Client ID of the socket connected
-        var roomTitle = $(this).text();
+        var roomTitle = $(this).find('.user_name').text();
         $('.room-title').text(roomTitle);
 
         $('#user-list li').removeClass('active');
 
         $('#user-list li[data-rid=' + roomId + ']').addClass('active');
 
-        // Change room for private chat
-        socket.emit('subscribe', _clientId, roomId);
+        var activeRoom = _userId + '_' + roomId;
+        if ($('#' + activeRoom).length == 0) {
+            // Change room for private chat
+            socket.emit('subscribe', _userId, _clientId, roomId);
+        } else {
+            currRoomId = activeRoom;
+            $('.content').hide();
+            $('#' + activeRoom).show();
+        }
+
+        $('#message').focus();
     });
 
     // User click Send button

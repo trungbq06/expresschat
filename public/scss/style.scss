@@ -202,6 +202,7 @@ h1.title {
 }
 
 .row-user {
+  position: relative;
   padding: 5px;
   color: #000;
   background: #AED4E8;
@@ -247,4 +248,18 @@ h1.title {
 }
 .room-title {
   display: inline;
+}
+
+.unread {
+  display: none;
+  position: absolute;
+  font-size: 12px;
+  top: 14px;
+  right: 10px;
+  width: 16px;
+  height: 16px;
+  background: red;
+  color: #fff;
+  border-radius: 8px;
+  text-align: center;
 }
