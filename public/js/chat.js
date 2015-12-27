@@ -1,5 +1,13 @@
+/**
+* TODO: Stream simple music between clients
+*/
+
+// SERVER address and port
 var SERVER = 'http://10.9.16.22:3700';
+
 var MAIN_ROOM = 'express_chat';
+
+// Chat window is current window
 var chatWindow = window.self;
 
 $(window).load(function() {
@@ -9,13 +17,28 @@ $(window).load(function() {
         return regexpr.test(value);
     }, "Please enter a valid username.");
 
+    // Current user name
     var _username = null;
+
+    // Current user_id
     var _userId = null;
+
+    // Messages array
     var messages = [];
+
+    // socket of current connection
     var socket = io.connect(SERVER);
+
+    // Field of message
     var field = $("#message");
+
+    // Current client_id
     var clientId = null;
+
+    // All users connected
     var users = [];
+
+    // Current room_id. Default is MAIN_ROOM
     var currRoomId = MAIN_ROOM;
 
     // First register user
@@ -83,14 +106,19 @@ $(window).load(function() {
             }
         ]
     });
-
+    
+    // On exception, show alert dialog and reset username
     socket.on('exception', function (data) {
         _username = null;
         
         alert(data.message);
     });
 
-    // Trigger message event
+    /** Trigger message event
+    * _clientUserId id of user on server database
+    * _clientId id of current user socket
+    * data hold message data
+    */
     socket.on('message', function (_clientUserId, _clientId, data) {
         var room_id = data.room_id;
         if(data.message) {
@@ -99,8 +127,9 @@ $(window).load(function() {
             // Handle on destination client
             if (_clientId != clientId) {
                 cls = 'row_other';
-                notifyMe(data.message);
+                notifyMe(data);
 
+                // If not is MAIN_ROOM, show unread count message
                 if (room_id == MAIN_ROOM) {
                     if (currRoomId != MAIN_ROOM) {
                         var currUnread = $('#user-list li#main_room .unread').text();
@@ -108,6 +137,7 @@ $(window).load(function() {
                         $('#user-list li#main_room .unread').text(currUnread).show();
                     }
                 } else if (currRoomId != room_id) {
+                    // Show unread count message on private chat
                     var currUnread = $('#user-list li[data-rid=' + _clientUserId + '] .unread').text();
                     currUnread++;
                     $('#user-list li[data-rid=' + _clientUserId + '] .unread').text(currUnread).show();
@@ -115,6 +145,7 @@ $(window).load(function() {
             }
             messages.push(data.message);
 
+            // Show message on screen
             var date = new Date();
             var html = '<div class="' + cls + '">' +
                 '<div class="r-message"><div class="username">' + data.username + '</div><div class="message">' + data.message + '</div>' +
@@ -126,8 +157,14 @@ $(window).load(function() {
             console.log("There is a problem:", data);
         }
     });
-
+    
+    /** Show user after logged in successfully
+    * _clientUserId id of user on server database
+    * _clientId id of current user socket
+    * _users array of all connected users
+    */
     socket.on('show_user', function (_clientUserId, _clientId, _users) {
+        // Set clientId for the first time
         if (!clientId) {
             clientId = _clientId;
             _userId = _clientUserId;
@@ -144,6 +181,7 @@ $(window).load(function() {
         }
         users = _users;
 
+        // Show all users. If new users connected, only show that user
         for (key in users) {
             var user = users[key];
 
@@ -155,6 +193,7 @@ $(window).load(function() {
                 continue;
             }
 
+            // If this user is not shown, show it
             if (!$('#' + cId).is(':visible')) {
                 var html = '<li class="row-user" id="' + cId + '" data-rid="' + userId + '"><img src="/images/profile.jpg" class="img-circle"><span class="user_name">' + username + '</span><span class="unread">0</span></li>';
 
@@ -162,7 +201,11 @@ $(window).load(function() {
             }
         }
     });
-
+    
+    /**
+    * _clientId id of current user socket
+    * room_id room_id that user want to connect to
+    */
     socket.on('subscribe', function (_clientId, room_id) {
         if ($('#' + room_id).length == 0) {
             var newRoomContent = '<div id="' + room_id + '" class="content fheight"></div>';
@@ -190,9 +233,10 @@ $(window).load(function() {
     });
     
     /**
-    * User interaction
+    * User interaction. Active private chat for user clicked
     */
     $('#user').on('click', '.row-user', function () {
+        // Hide unread notify
         $(this).find('.unread').text('').hide();
 
         var roomId = $(this).attr('data-rid');
@@ -209,6 +253,7 @@ $(window).load(function() {
             // Change room for private chat
             socket.emit('subscribe', _userId, _clientId, roomId);
         } else {
+            // Only active current private chat
             currRoomId = activeRoom;
             $('.content').hide();
             $('#' + activeRoom).show();
@@ -246,7 +291,7 @@ $(function() {
         Notification.requestPermission();
 });
 
-function notifyMe(message) {
+function notifyMe(data) {
   if (!Notification) {
     alert('Desktop notifications not available in your browser. Try Chromium.');
     return;
@@ -257,11 +302,12 @@ function notifyMe(message) {
   else {
     var notification = new Notification('New message', {
       icon: SERVER + '/images/so_icon.png',
-      body: message,
+      body: data.message,
     });
 
+    // Open and active current chat window
     notification.onclick = function () {
-      chatWindow.focus();
+        chatWindow.focus();
     };
   }
 }

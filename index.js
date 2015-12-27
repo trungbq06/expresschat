@@ -87,8 +87,9 @@ var mainRoom = 'express_chat';
 app.set('views', __dirname + '/tpl');
 app.set('view engine', "jade");
 app.engine('jade', require('jade').__express);
+
 app.get("/", function(req, res){
-    res.render("index");
+  res.render("index");
 });
 
 // Require public folder resources
@@ -131,19 +132,14 @@ io.sockets.on('connection', function (socket) {
   socket.on('subscribe', function (_clientUserId, clientId, room_id) {
     if (room_id != mainRoom) {
       room_id = room_id + '_' + _clientUserId;
-
-      console.log('Change room: ' + room_id + ' - Has room: ' + rooms.indexOf(room_id));
       
       if (rooms.indexOf(room_id) == -1) {
-        console.log('Subscribe new room ' + room_id);
-
         // Create private chat between this socket and client
         socket.join(room_id);
         userSockets[clientId].join(room_id);
 
         rooms.push(room_id);
       }
-      console.log('Rooms ' + rooms.toString());
     }
 
     // Create message content to hold between these two users
@@ -209,8 +205,6 @@ io.sockets.on('connection', function (socket) {
 
   // Listen for disconnect event
   socket.on('disconnect', function () {
-    console.log('User ' + _clientId + ' is disconnecting ...');
-
     // Update current users online
     functions.removeObject(users, _clientId);
 
@@ -218,8 +212,6 @@ io.sockets.on('connection', function (socket) {
     io.sockets.emit('remove_user', _clientId, users);
 
     console.log('User ' + _clientId + ' disconnected');
-
-    console.log(users.length + ' remaining.');
   });
 });
 
