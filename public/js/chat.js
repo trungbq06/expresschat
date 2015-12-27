@@ -1,5 +1,6 @@
 var SERVER = 'http://10.9.16.22:3700';
 var MAIN_ROOM = 'express_chat';
+var chatWindow = window.self;
 
 $(window).load(function() {
 
@@ -260,7 +261,7 @@ function notifyMe(message) {
     });
 
     notification.onclick = function () {
-      window.open(SERVER, "Express Web Chat");
+      chatWindow.focus();
     };
   }
 }
