@@ -5,7 +5,7 @@
 // SERVER address and port
 var SERVER = 'http://10.9.16.22:3700';
 
-var MAIN_ROOM = 'express_chat';
+var MAIN_ROOM = 'expresschat';
 
 // Chat window is current window
 var chatWindow = window.self;
@@ -75,6 +75,7 @@ $(window).load(function() {
                         _username = username;
                         // Login user
                         socket.emit('login', { username: username, password: password });
+                        $('body').after('<div id="active_room" style="display:none;">' + MAIN_ROOM + '</div>');
                         $('#profile').text(username);
                     }
                 }
@@ -100,6 +101,7 @@ $(window).load(function() {
                         _username = username;
                         // Register user
                         socket.emit('regist', { username: username, password: password });
+                        $('body').after('<div id="active_room" style="display:none;">' + MAIN_ROOM + '</div>');
                         $('#profile').text(username);
                     }
                 }
@@ -152,7 +154,7 @@ $(window).load(function() {
                 '<div class="profile"><img src="/images/profile.jpg" class="img-rounded"></div></div>' +
                 '<div class="date">' + date.getHours() + ':' + ('0' + date.getMinutes()).slice(-2) + '</div>' +
             '</div>';
-            $('#' + room_id).append(html).scrollTop($('#' + room_id)[0].scrollHeight);
+            $('#' + MAIN_ROOM).append(html).scrollTop($('#' + MAIN_ROOM)[0].scrollHeight);
         } else {
             console.log("There is a problem:", data);
         }
@@ -176,7 +178,7 @@ $(window).load(function() {
 
         // Main chat room
         if (!$('#main_room').is(':visible')) {
-            var html = '<li class="row-user active" id="main_room" data-rid="express_chat"><span class="user_name">Express Chat Room</span><span class="unread">0</span></li>';
+            var html = '<li class="row-user active" id="main_room" data-rid="' + MAIN_ROOM + '"><span class="user_name">Express Chat Room</span><span class="unread">0</span></li>';
             $('#user-list').append(html);
         }
         users = _users;
@@ -200,6 +202,9 @@ $(window).load(function() {
                 $('#user-list').append(html);
             }
         }
+
+        // Display message history
+        socket.emit('load_message', _clientId, MAIN_ROOM);
     });
     
     /**
@@ -207,6 +212,7 @@ $(window).load(function() {
     * room_id room_id that user want to connect to
     */
     socket.on('subscribe', function (_clientId, room_id) {
+        /*
         if ($('#' + room_id).length == 0) {
             var newRoomContent = '<div id="' + room_id + '" class="content fheight"></div>';
 
@@ -216,11 +222,19 @@ $(window).load(function() {
                 $('#' + room_id).hide();
             }
         }
+        */
 
+        // Show messages of this room
         if (_clientId == clientId) {
             currRoomId = room_id;
-            $('.content').hide();
-            $('#' + currRoomId).show();
+            // $('.content').hide();
+            // $('#' + currRoomId).show();
+
+            console.log('Current Room ' + currRoomId);
+
+            // Load messages for this room
+            socket.emit('load_message', _clientId, currRoomId);
+            $('#active_room').text(currRoomId);
         }
     });
 
@@ -230,6 +244,31 @@ $(window).load(function() {
 
         // Remove from channel
         $('#' + _clientId).remove();
+    });
+
+    socket.on('display_message', function (_clientId, messages) {
+        console.log('Current User ID ' + _userId);
+        console.log('Total ' + messages.length);
+        $('#' + MAIN_ROOM).html('');
+
+        for (key in messages) {
+            var message = messages[key];
+            var user_id = message.user_id;
+
+            var cls = 'row';
+            if (_userId != user_id) {
+                cls = 'row_other';
+            }
+
+            // Show message on screen
+            var date = new Date(message.created_at);
+            var html = '<div class="' + cls + '">' +
+                '<div class="r-message"><div class="username">' + message.user_name + '</div><div class="message">' + message.message + '</div>' +
+                '<div class="profile"><img src="/images/profile.jpg" class="img-rounded"></div></div>' +
+                '<div class="date">' + date.getHours() + ':' + ('0' + date.getMinutes()).slice(-2) + '</div>' +
+            '</div>';
+            $('#' + MAIN_ROOM).append(html).scrollTop($('#' + MAIN_ROOM)[0].scrollHeight);
+        }
     });
     
     /**
@@ -255,8 +294,16 @@ $(window).load(function() {
         } else {
             // Only active current private chat
             currRoomId = activeRoom;
+
+            /*
             $('.content').hide();
             $('#' + activeRoom).show();
+            */
+            console.log('Current Room ' + currRoomId);
+
+            // Load messages for this room
+            socket.emit('load_message', _clientId, currRoomId);
+            $('#active_room').text(currRoomId);
         }
 
         $('#message').focus();
@@ -275,6 +322,7 @@ $(window).load(function() {
     $('#message').keypress(function(e) {
         if (e.which == 13) {
             var text = field.val();
+            alert('Save text ' + text);
             socket.emit('send', { message: text, username: _username, room_id: currRoomId });
 
             console.log('Current room ' + currRoomId);

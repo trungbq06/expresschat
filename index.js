@@ -37,8 +37,8 @@ userSchema.pre('save', function(next) {
 var messageSchema = new Schema({
   message_id: Number,
   user_id: String,
+  user_name: String,
   room_id: String,
-  to_user_id: String,
   message: String,
   created_at: Date
 });
@@ -81,7 +81,7 @@ var port = 3700;
 var users = [];
 var userSockets = [];
 var rooms = [];
-var mainRoom = 'express_chat';
+var mainRoom = 'expresschat';
 
 // Setting template engine Jade
 app.set('views', __dirname + '/tpl');
@@ -108,6 +108,23 @@ io.sockets.on('connection', function (socket) {
   if (rooms.indexOf(mainRoom) == -1) {
     rooms.push(mainRoom);
   }
+
+  // Load message for rooms
+  socket.on('load_message', function (_clientId, roomId) {
+    console.log('Loading message for room ' + roomId);
+    var rooms = roomId.split('_');
+    if (rooms.length == 2) {
+      var room2 = rooms[1] + '_' + rooms[0];
+      console.log('Load from ' + roomId + ' - ' + room2);
+      Message.find().or([{ room_id: roomId }, { room_id: room2}]).sort({'created_at': 'asc'}).exec(function (err, messages) {
+        socket.emit('display_message', _clientId, messages);
+      });
+    } else {
+      Message.find({ room_id: roomId }).sort({'created_at': 'asc'}).exec(function (err, messages) {
+        socket.emit('display_message', _clientId, messages);
+      });
+    }
+  });
 
   // Trigger on send event
   socket.on('send', function (data) {
