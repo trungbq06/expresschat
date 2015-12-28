@@ -5,7 +5,7 @@ var favicon = require('serve-favicon');
 var autoIncrement = require('mongoose-auto-increment');
 var functions = require("./public/js/functions.js");
 
-var url = 'mongodb://10.9.16.22:27017/chat';
+var url = 'mongodb://192.168.1.13:27017/chat';
 var Schema = mongoose.Schema;
 var connection = mongoose.createConnection(url);
 autoIncrement.initialize(connection);
@@ -60,16 +60,16 @@ messageSchema.pre('save', function(next) {
 
 // Create User and Message schema
 userSchema.plugin(autoIncrement.plugin, {
-    model: 'User',
-    field: 'user_id',
-    startAt: 1,
-    incrementBy: 1
+  model: 'User',
+  field: 'user_id',
+  startAt: 1,
+  incrementBy: 1
 });
 messageSchema.plugin(autoIncrement.plugin, {
-    model: 'Message',
-    field: 'message_id',
-    startAt: 1,
-    incrementBy: 1
+  model: 'Message',
+  field: 'message_id',
+  startAt: 1,
+  incrementBy: 1
 });
 
 // Create User and Message schema
