@@ -5,7 +5,7 @@ var favicon = require('serve-favicon');
 var autoIncrement = require('mongoose-auto-increment');
 var functions = require("./public/js/functions.js");
 
-var url = 'mongodb://192.168.1.13:27017/chat';
+var url = 'mongodb://localhost:27017/chat';
 var Schema = mongoose.Schema;
 var connection = mongoose.createConnection(url);
 autoIncrement.initialize(connection);
@@ -77,6 +77,8 @@ var User = connection.model('User', userSchema);
 var Message = connection.model('Message', messageSchema);
 
 var app = express();
+var http = require('http');
+var server = http.createServer(app);
 var port = 3700;
 var users = [];
 var userSockets = [];
@@ -97,7 +99,7 @@ app.use(express.static(__dirname + '/public'));
 app.use(favicon(__dirname + '/public/favicon.ico'));
 
 // Pass express to socket.io
-var io = require('socket.io').listen(app.listen(port));
+var io = require('socket.io').listen(server);
 
 // Initiate socket to handle all connection
 io.sockets.on('connection', function (socket) {
@@ -232,4 +234,5 @@ io.sockets.on('connection', function (socket) {
   });
 });
 
+server.listen(port);
 console.log('Server started on port ' + port);
