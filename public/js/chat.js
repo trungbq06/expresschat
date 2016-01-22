@@ -3,7 +3,7 @@
 */
 
 // SERVER address and port
-var SERVER = 'http://10.9.16.22:3700';
+var SERVER = 'http://localhost:3700';
 
 var MAIN_ROOM = 'expresschat';
 
